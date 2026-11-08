@@ -242,7 +242,7 @@
 
   <!-- MODAL DE RESULTATS I CONFIRMACIÓ D'ENVIAMENT -->
   <div id="resultsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-lg p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="text-center space-y-2">
         <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs">
           RESULTAT DE LA PROVA
@@ -259,6 +259,16 @@
         <p><strong>Alumne/a:</strong> <span id="modalStudentName" class="font-bold text-slate-800 dark:text-slate-100">--</span></p>
         <p><strong>Aula / Grup:</strong> <span id="modalStudentClass" class="font-bold text-slate-800 dark:text-slate-100">--</span></p>
         <p><strong>Estat de l'enviament:</strong> <span id="modalSendStatus" class="font-bold text-emerald-600 dark:text-emerald-400">⏳ Enviant...</span></p>
+      </div>
+
+      <!-- SECCIÓ DE DESGLOSSAT VISUAL D'ERRADES -->
+      <div id="modalMistakesSection" class="space-y-3 text-left">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <span>🔍</span> Revisió de Respostes i Errades:
+        </h4>
+        <div id="modalMistakesList" class="space-y-2 text-xs max-h-56 overflow-y-auto custom-scrollbar pr-1">
+          <!-- Es renderitza dinàmicament per JS -->
+        </div>
       </div>
 
       <div class="text-center">
@@ -737,25 +747,65 @@
       }
 
       let score = 0;
+      let mistakes = []; // Registre de les errades per al desglossat i el full de càlcul
+
+      // Traducció amigable d'opcions d'enllaç
+      const linkLabel = (val) => {
+        if (val === 'Ionic') return 'Enllaç Iònic';
+        if (val === 'Covalent') return 'Enllaç Covalent';
+        if (val === 'Metallic') return 'Enllaç Metàl·lic';
+        if (val === 'Noble') return 'Sense enllaç (Gas noble)';
+        return val || '(en blanc)';
+      };
 
       // Act 1 (2 pts: 4 Qs x 0.5)
       currentAct1.forEach((q, idx) => {
-        if (userVFAnswers[idx] === q.ans) score += 0.5;
+        const userAns = userVFAnswers[idx];
+        if (userAns === q.ans) {
+          score += 0.5;
+        } else {
+          const userStr = userAns === true ? 'V' : (userAns === false ? 'F' : '(en blanc)');
+          const correctStr = q.ans ? 'V' : 'F';
+          mistakes.push({
+            act: 'Act 1 (V/F)',
+            desc: q.text,
+            user: userStr,
+            correct: correctStr
+          });
+        }
       });
 
       // Act 2 (2 pts: 3 Qs x 0.666)
       const a2_1 = document.getElementById('act2_1').value;
       const a2_2 = document.getElementById('act2_2').value;
       const a2_3 = document.getElementById('act2_3').value;
-      if (a2_1 === 'Ionic') score += (2 / 3);
-      if (a2_2 === 'Covalent') score += (2 / 3);
-      if (a2_3 === 'Metallic') score += (2 / 3);
+
+      if (a2_1 === 'Ionic') { score += (2 / 3); } else {
+        mistakes.push({ act: 'Act 2 (Mecanismes)', desc: 'Metall + No metall', user: linkLabel(a2_1), correct: 'Enllaç Iònic' });
+      }
+      if (a2_2 === 'Covalent') { score += (2 / 3); } else {
+        mistakes.push({ act: 'Act 2 (Mecanismes)', desc: 'No metall + No metall', user: linkLabel(a2_2), correct: 'Enllaç Covalent' });
+      }
+      if (a2_3 === 'Metallic') { score += (2 / 3); } else {
+        mistakes.push({ act: 'Act 2 (Mecanismes)', desc: 'Metall + Metall', user: linkLabel(a2_3), correct: 'Enllaç Metàl·lic' });
+      }
 
       // Act 3 (2.5 pts: 5 Qs x 0.5)
       const correctAct3 = { 1: 'estabilitat', 2: '8', 3: 'perden', 4: 'guanyen', 5: 'compartir' };
+      const act3Descs = {
+        1: "1. Motiu de la unió dels àtoms",
+        2: "2. Nombre d'electrons segons la regla de l'octet",
+        3: "3. Comportament dels metalls en enllaç iònic",
+        4: "4. Comportament dels no metalls en enllaç iònic",
+        5: "5. Comportament dels no metalls en enllaç covalent"
+      };
       for (let i = 1; i <= 5; i++) {
         const val = document.getElementById(`act3_${i}`).value;
-        if (val === correctAct3[i]) score += 0.5;
+        if (val === correctAct3[i]) {
+          score += 0.5;
+        } else {
+          mistakes.push({ act: 'Act 3 (Text buits)', desc: act3Descs[i], user: val || '(en blanc)', correct: correctAct3[i] });
+        }
       }
 
       // Act 4 (2 pts: 4 Qs x 0.5)
@@ -763,24 +813,69 @@
         const radios = document.getElementsByName(`act4_${idx}`);
         let sel = '';
         radios.forEach(r => { if (r.checked) sel = r.value; });
-        if (sel === q.ans) score += 0.5;
+        if (sel === q.ans) {
+          score += 0.5;
+        } else {
+          mistakes.push({ act: 'Act 4 (Substàncies)', desc: q.name, user: linkLabel(sel), correct: linkLabel(q.ans) });
+        }
       });
 
       // Act 5 (1 pt: 3 Qs x 0.333)
       const correctAct5 = { 1: 'Covalent', 2: 'Ionic', 3: 'Metallic' };
+      const act5Descs = {
+        1: '1. 🤝 Àtoms compartint electrons',
+        2: '2. 🎁 Traspàs d\'electró amb formació d\'ions',
+        3: '3. 🌊 Ions positius en un mar d\'electrons'
+      };
       for (let i = 1; i <= 3; i++) {
         const val = document.getElementById(`act5_${i}`).value;
-        if (val === correctAct5[i]) score += (1 / 3);
+        if (val === correctAct5[i]) {
+          score += (1 / 3);
+        } else {
+          mistakes.push({ act: 'Act 5 (Descripció)', desc: act5Descs[i], user: linkLabel(val), correct: linkLabel(correctAct5[i]) });
+        }
       }
 
       // Act 6 (1.5 pts: 5 Qs x 0.3)
       currentAct6.forEach((q, idx) => {
         const val = document.getElementById(`act6_${idx}`).value;
-        if (val === q.ans) score += 0.3;
+        if (val === q.ans) {
+          score += 0.3;
+        } else {
+          mistakes.push({ act: 'Act 6 (Taula Periòdica)', desc: `${q.name1} + ${q.name2}`, user: linkLabel(val), correct: linkLabel(q.ans) });
+        }
       });
 
       // Escalador a base 10.0 punts
       const finalMark = Math.min(10, ((score / 11) * 10)).toFixed(1);
+
+      // Renderitzat visual del desglossat d'errades al modal
+      const mistakesListEl = document.getElementById('modalMistakesList');
+      if (mistakesListEl) {
+        if (mistakes.length === 0) {
+          mistakesListEl.innerHTML = `
+            <div class="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-xl font-bold text-center">
+              🎉 Felicitats! Has fet una prova perfecta sense cap errada.
+            </div>`;
+        } else {
+          mistakesListEl.innerHTML = mistakes.map((m, i) => `
+            <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl space-y-1">
+              <div class="flex justify-between font-bold text-rose-800 dark:text-rose-300">
+                <span>[${m.act}] ${m.desc}</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                <span class="text-rose-600 dark:text-rose-400">Resposta: <strong class="line-through">${m.user}</strong></span>
+                <span class="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">Correcta: ${m.correct}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Format de la cadenes de detalls per a Google Sheets
+      const detallsText = mistakes.length === 0 
+        ? "Sense errades (100% d'encerts)" 
+        : mistakes.map(m => `[${m.act} - ${m.desc}: Resp="${m.user}", Corr="${m.correct}"]`).join('; ');
 
       // Mostrar modal de resultats
       document.getElementById('modalScoreDisplay').textContent = `${finalMark} / 10`;
@@ -796,7 +891,7 @@
         data: new Date().toLocaleString('ca-ES'),
         assignatura: "Física i Química (3r ESO)",
         unitat: "Unitat 3: L'Enllaç Químic - Prova d'Avaluació",
-        detalls: `Nota: ${finalMark}/10 (Puntuació directa: ${score.toFixed(1)}/11)`
+        detalls: `Nota: ${finalMark}/10 (Puntuació: ${score.toFixed(1)}/11) | Errades (${mistakes.length}): ${detallsText}`
       };
 
       // Enviament POST
