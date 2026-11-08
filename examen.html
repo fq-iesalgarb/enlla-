@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ca" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IES Algarb - Prova d'Avaluació: L'Enllaç Químic (3r ESO)</title>
+  
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          gridTemplateColumns: {
+            '19': '45px repeat(18, minmax(50px, 1fr))'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Tipografia Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- KaTeX per a formulació científica -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- MODAL INICIAL D'IDENTIFICACIÓ DE L'ALUMNE/A -->
+  <div id="registrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="inline-block bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 px-4 py-2 rounded-2xl text-white font-black text-xs tracking-wider shadow-md mb-1">
+          IES ALGARB
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Prova d'Avaluació</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Unitat 3: L'Enllaç Químic (Física i Química 3r ESO)</p>
+      </div>
+
+      <form id="registrationForm" onsubmit="handleRegistration(event)" class="space-y-4">
+        <div>
+          <label for="studentNameInput" class="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1.5">
+            Nom i Llinatges de l'Alumne/a:
+          </label>
+          <input type="text" id="studentNameInput" required placeholder="Ex. Marc Torres Guasch" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-sm font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label for="studentClassInput" class="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1.5">
+            Codi d'Aula / Grup:
+          </label>
+          <input type="text" id="studentClassInput" required placeholder="Ex. 3r ESO A" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-sm font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black text-base rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+            🚀 Iniciar la Prova d'Avaluació
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CAPÇALERA FIXA -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <div class="flex items-center space-x-3">
+        <div class="bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-2.5 rounded-xl text-white font-black tracking-wider text-xs sm:text-sm shadow-md">
+          IES ALGARB
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-blue-400 dark:to-indigo-300 bg-clip-text text-transparent">
+            Física i Química (3r ESO)
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Unitat 3: L'Enllaç Químic - Prova d'Avaluació</p>
+        </div>
+      </div>
+
+      <!-- Commutador Mode Fosc / Lluminós -->
+      <button id="themeToggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <span id="themeIconSun" class="hidden text-amber-400">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 2.22a1 1 0 011.415 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM17 9a1 1 0 100 2h1a1 1 0 100-2h-1zm-2.22 5.78a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-2.22a1 1 0 01-1.414 0l-.707.707a1 1 0 011.414 1.414l.707-.707a1 1 0 010-1.414zM3 10a1 1 0 011-1h1a1 1 0 110 2H4a1 1 0 01-1-1zm2.22-5.78a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 6a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        </span>
+        <span id="themeIconMoon" class="text-indigo-400">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+        </span>
+        <span id="themeText" class="hidden sm:inline font-semibold">Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE REGISTRE DE L'ALUMNE/A -->
+  <div id="studentStatusBar" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between text-xs sm:text-sm font-bold gap-2">
+      <div class="flex items-center gap-3">
+        <span class="bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm">👤 Alumne/a: <span id="registeredNameDisplay">--</span></span>
+        <span class="bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm">🏫 Aula: <span id="registeredClassDisplay">--</span></span>
+      </div>
+      <div class="text-right text-indigo-100 font-semibold text-xs">
+        📌 Les preguntes s'han generat de manera aleatòria per a aquesta prova.
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTINGUT PRINCIPAL DE LA PROVA -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- ACTIVITAT 1 -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 1. Vertader o Fals</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">2 punts</span>
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Llegeix cada frase i determina si és Vertadera (V) o Falsa (F):</p>
+      <div id="act1Container" class="space-y-3 text-sm">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+    </div>
+
+    <!-- ACTIVITAT 2 -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 2. Relaciona cada descripció d'enllaç</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">2 punts</span>
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Associa quin tipus d'enllaç representa cada mecanisme electrònic:</p>
+      <div id="act2Container" class="space-y-3 text-sm">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+    </div>
+
+    <!-- ACTIVITAT 3 -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 3. Completa els buits del text</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">2.5 punts</span>
+      </h3>
+      
+      <div class="bg-amber-50 dark:bg-slate-700/60 border border-amber-200 dark:border-slate-600 p-3 rounded-xl mb-4">
+        <span class="text-xs font-bold text-amber-800 dark:text-amber-300 block mb-1">Banc de paraules disponibles:</span>
+        <div class="flex flex-wrap gap-2 text-xs font-bold">
+          <span class="px-2.5 py-1 bg-white dark:bg-slate-800 rounded shadow">8</span>
+          <span class="px-2.5 py-1 bg-white dark:bg-slate-800 rounded shadow">compartir</span>
+          <span class="px-2.5 py-1 bg-white dark:bg-slate-800 rounded shadow">perden</span>
+          <span class="px-2.5 py-1 bg-white dark:bg-slate-800 rounded shadow">estabilitat</span>
+          <span class="px-2.5 py-1 bg-white dark:bg-slate-800 rounded shadow">guanyen</span>
+        </div>
+      </div>
+
+      <div id="act3Container" class="space-y-3 text-sm leading-relaxed">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+    </div>
+
+    <!-- ACTIVITAT 4 -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 4. Quin tipus d'enllaç tenen aquestes substàncies?</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">2 punts</span>
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Selecciona l'opció correcta per a les substàncies proposades:</p>
+      <div id="act4Container" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+    </div>
+
+    <!-- ACTIVITAT 5 -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 5. Identifica el tipus d'enllaç descrit</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">1 punt</span>
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Classifica la descripció visual en un dels tres tipus d'enllaç:</p>
+      <div id="act5Container" class="space-y-3 text-sm">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+    </div>
+
+    <!-- ACTIVITAT 6 + TAULA PERIÒDICA DE SUPORT -->
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center justify-between">
+        <span>Activitat 6. Prediu l'enllaç segons la Taula Periòdica</span>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full">1.5 punts</span>
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+        Utilitza la <strong>Taula Periòdica de suport de sota</strong> per comprovar si cada element és Metall (🟦), No metall (🟩) o Gas noble (🟪) i deduir l'enllaç. Fes clic a qualsevol parell per ressaltar-ne els àtoms.
+      </p>
+
+      <div id="act6Container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-6">
+        <!-- Renderitzat dinàmicament per JS -->
+      </div>
+
+      <!-- TAULA PERIÒDICA DE SUPORT -->
+      <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h4 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>🗺️</span> Taula Periòdica de Suport (Ressaltat Dinàmic)
+            </h4>
+            <p id="act6GuideText" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">
+              Mostrant els elements de totes les preguntes d'aquesta prova. Clica un botó per filtrar.
+            </p>
+          </div>
+
+          <div id="act6FilterButtons" class="flex flex-wrap gap-1.5 text-xs font-bold shrink-0">
+            <!-- Renderitzat per JS -->
+          </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar pb-2">
+          <div id="supportPeriodicTableGrid" class="min-w-[980px] grid grid-cols-19 gap-1 text-center">
+            <!-- Renderitzat per JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓ D'ENVIAMENT I FINALITZACIÓ -->
+    <div class="text-center pt-4 pb-8">
+      <button onclick="submitExam()" class="px-10 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black text-lg rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all flex items-center gap-3 mx-auto">
+        <span>📤</span> Finalitzar i Enviar la Prova
+      </button>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE RESULTATS I CONFIRMACIÓ D'ENVIAMENT -->
+  <div id="resultsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs">
+          RESULTAT DE LA PROVA
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Qualificació Final Obtinguda</h2>
+      </div>
+
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl text-center shadow-lg space-y-1">
+        <span class="text-xs font-bold uppercase tracking-widest opacity-80">Nota Final (Escala sobre 10)</span>
+        <div id="modalScoreDisplay" class="text-5xl font-black">0.0 / 10</div>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600">
+        <p><strong>Alumne/a:</strong> <span id="modalStudentName" class="font-bold text-slate-800 dark:text-slate-100">--</span></p>
+        <p><strong>Aula / Grup:</strong> <span id="modalStudentClass" class="font-bold text-slate-800 dark:text-slate-100">--</span></p>
+        <p><strong>Estat de l'enviament:</strong> <span id="modalSendStatus" class="font-bold text-emerald-600 dark:text-emerald-400">⏳ Enviant...</span></p>
+      </div>
+
+      <div class="text-center">
+        <button onclick="location.reload()" class="px-6 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-bold text-xs sm:text-sm rounded-xl transition-all">
+          🔄 Tornar a començar una nova prova aleatòria
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEU DE PÀGINA -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-semibold text-slate-700 dark:text-slate-300">IES Algarb - Departament de Física i Química</p>
+      <p class="mt-1">Unitat 3: L'Enllaç Químic (3r ESO)</p>
+    </div>
+  </footer>
+
+  <!-- LÒGICA JAVASCRIPT GLOBAL -->
+  <script>
+    /* =========================================================
+       1. KA-TEX HELPER FUNCTIONS
+       ========================================================= */
+    function mInline(latexStr, containerId) {
+      const container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      try {
+        const html = katex.renderToString(latexStr, { displayMode: false, throwOnError: false });
+        if (container) container.innerHTML = html;
+        return html;
+      } catch (e) {
+        if (container) container.textContent = latexStr;
+        return latexStr;
+      }
+    }
+
+    function mBlock(latexStr, containerId) {
+      const container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      try {
+        const html = katex.renderToString(latexStr, { displayMode: true, throwOnError: false });
+        if (container) container.innerHTML = html;
+        return html;
+      } catch (e) {
+        if (container) container.textContent = latexStr;
+        return latexStr;
+      }
+    }
+
+    /* =========================================================
+       2. REGISTRE DE L'ALUMNE/A
+       ========================================================= */
+    let studentData = { name: '', aula: '' };
+
+    function handleRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById('studentNameInput').value.trim();
+      const aula = document.getElementById('studentClassInput').value.trim();
+
+      if (!name || !aula) return;
+
+      studentData.name = name;
+      studentData.aula = aula;
+
+      document.getElementById('registeredNameDisplay').textContent = name;
+      document.getElementById('registeredClassDisplay').textContent = aula;
+
+      document.getElementById('registrationModal').classList.add('hidden');
+    }
+
+    /* =========================================================
+       3. MAPA IUPAC I ITEM BANKS PER A PREGUNTES ALEATÒRIES
+       ========================================================= */
+    const elementMap = {
+      "1-1": { sym: 'H', z: 1, val: 1, type: 'No metall', name: 'Hidrogen' },
+      "1-18": { sym: 'He', z: 2, val: 2, type: 'Gas noble', name: 'Heli' },
+      "2-1": { sym: 'Li', z: 3, val: 1, type: 'Metall', name: 'Liti' },
+      "2-2": { sym: 'Be', z: 4, val: 2, type: 'Metall', name: 'Beril·li' },
+      "2-13": { sym: 'B', z: 5, val: 3, type: 'No metall', name: 'Bor' },
+      "2-14": { sym: 'C', z: 6, val: 4, type: 'No metall', name: 'Carboni' },
+      "2-15": { sym: 'N', z: 7, val: 5, type: 'No metall', name: 'Nitrogen' },
+      "2-16": { sym: 'O', z: 8, val: 6, type: 'No metall', name: 'Oxigen' },
+      "2-17": { sym: 'F', z: 9, val: 7, type: 'No metall', name: 'Fluor' },
+      "2-18": { sym: 'Ne', z: 10, val: 8, type: 'Gas noble', name: 'Neó' },
+      "3-1": { sym: 'Na', z: 11, val: 1, type: 'Metall', name: 'Sodi' },
+      "3-2": { sym: 'Mg', z: 12, val: 2, type: 'Metall', name: 'Magnesi' },
+      "3-13": { sym: 'Al', z: 13, val: 3, type: 'Metall', name: 'Alumini' },
+      "3-14": { sym: 'Si', z: 14, val: 4, type: 'No metall', name: 'Silici' },
+      "3-15": { sym: 'P', z: 15, val: 5, type: 'No metall', name: 'Fòsfor' },
+      "3-16": { sym: 'S', z: 16, val: 6, type: 'No metall', name: 'Sofre' },
+      "3-17": { sym: 'Cl', z: 17, val: 7, type: 'No metall', name: 'Clor' },
+      "3-18": { sym: 'Ar', z: 18, val: 8, type: 'Gas noble', name: 'Argó' },
+      "4-1": { sym: 'K', z: 19, val: 1, type: 'Metall', name: 'Potassi' },
+      "4-2": { sym: 'Ca', z: 20, val: 2, type: 'Metall', name: 'Calci' },
+      "4-8": { sym: 'Fe', z: 26, val: 2, type: 'Metall', name: 'Ferro' },
+      "4-11": { sym: 'Cu', z: 29, val: 1, type: 'Metall', name: 'Coure' },
+      "4-17": { sym: 'Br', z: 35, val: 7, type: 'No metall', name: 'Brom' },
+      "4-18": { sym: 'Kr', z: 36, val: 8, type: 'Gas noble', name: 'Criptó' },
+      "6-11": { sym: 'Au', z: 79, val: 1, type: 'Metall', name: 'Or' }
+    };
+
+    // POOLS DE PREGUNTES PER TRIAR ALEATÒRIAMENT
+    const poolAct1 = [
+      { text: "Els àtoms s'uneixen per aconseguir la màxima estabilitat possible.", ans: true },
+      { text: "Els gasos nobles s'uneixen fàcilment amb altres àtoms perquè tenen la darrera capa buida.", ans: false },
+      { text: "La regla de l'octet indica que els àtoms cerquen tenir 8 electrons a la capa de valència.", ans: true },
+      { text: "L'enllaç iònic es forma entre dos elements metàl·lics.", ans: false },
+      { text: "En l'enllaç covalent els àtoms comparteixen parelles d'electrons.", ans: true },
+      { text: "Un catió és un àtom que ha guanyat electrons i té càrrega negativa.", ans: false },
+      { text: "En l'enllaç metàl·lic els electrons formen un mar d'electrons lliures.", ans: true },
+      { text: "Un anió és un ió amb càrrega positiva.", ans: false },
+      { text: "L'aigua és un exemple de substància formada per enllaç covalent.", ans: true },
+      { text: "La sal comuna (clorur de sodi) està formada per una xarxa d'enllaç metàl·lic.", ans: false }
+    ];
+
+    const poolAct4 = [
+      { name: "Sal de cuina (Clorur de sodi, NaCl)", latex: "\\text{NaCl}", ans: "Ionic" },
+      { name: "Aigua (H₂O)", latex: "\\text{H}_2\\text{O}", ans: "Covalent" },
+      { name: "Cable de coure (Cu)", latex: "\\text{Cu}", ans: "Metallic" },
+      { name: "Gas diòxid de carboni (CO₂)", latex: "\\text{CO}_2", ans: "Covalent" },
+      { name: "Fluorur de potassi (KF)", latex: "\\text{KF}", ans: "Ionic" },
+      { name: "Oxigen gasós (O₂)", latex: "\\text{O}_2", ans: "Covalent" },
+      { name: "Barra de ferro (Fe)", latex: "\\text{Fe}", ans: "Metallic" },
+      { name: "Òxid de magnesi (MgO)", latex: "\\text{MgO}", ans: "Ionic" },
+      { name: "Gas metà (CH₄)", latex: "\\text{CH}_4", ans: "Covalent" },
+      { name: "Lingot d'or (Au)", latex: "\\text{Au}", ans: "Metallic" }
+    ];
+
+    const poolAct6 = [
+      { name1: "Magnesi (Mg)", sym1: "Mg", type1: "Metall", name2: "Oxigen (O)", sym2: "O", type2: "No metall", ans: "Ionic" },
+      { name1: "Hidrogen (H)", sym1: "H", type1: "No metall", name2: "Clor (Cl)", sym2: "Cl", type2: "No metall", ans: "Covalent" },
+      { name1: "Ferro (Fe)", sym1: "Fe", type1: "Metall", name2: "Ferro (Fe)", sym2: "Fe", type1: "Metall", ans: "Metallic" },
+      { name1: "Potassi (K)", sym1: "K", type1: "Metall", name2: "Fluor (F)", sym2: "F", type2: "No metall", ans: "Ionic" },
+      { name1: "Carboni (C)", sym1: "C", type1: "No metall", name2: "Oxigen (O)", sym2: "O", type2: "No metall", ans: "Covalent" },
+      { name1: "Sodi (Na)", sym1: "Na", type1: "Metall", name2: "Fluor (F)", sym2: "F", type2: "No metall", ans: "Ionic" },
+      { name1: "Calci (Ca)", sym1: "Ca", type1: "Metall", name2: "Oxigen (O)", sym2: "O", type2: "No metall", ans: "Ionic" },
+      { name1: "Nitrogen (N)", sym1: "N", type1: "No metall", name2: "Hidrogen (H)", sym2: "H", type2: "No metall", ans: "Covalent" },
+      { name1: "Coure (Cu)", sym1: "Cu", type1: "Metall", name2: "Coure (Cu)", sym2: "Cu", type2: "Metall", ans: "Metallic" },
+      { name1: "Neó (Ne)", sym1: "Ne", type1: "Gas noble", name2: "Oxigen (O)", sym2: "O", type2: "No metall", ans: "Noble" }
+    ];
+
+    // GENERATS ALEATÒRIAMENT EN CARREGAR
+    let currentAct1 = [];
+    let currentAct4 = [];
+    let currentAct6 = [];
+    let userVFAnswers = {};
+
+    function shuffleArray(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function initRandomExam() {
+      // Pick 4 from Act 1
+      currentAct1 = shuffleArray(poolAct1).slice(0, 4);
+      // Pick 4 from Act 4
+      currentAct4 = shuffleArray(poolAct4).slice(0, 4);
+      // Pick 5 from Act 6
+      currentAct6 = shuffleArray(poolAct6).slice(0, 5);
+
+      renderAct1();
+      renderAct2();
+      renderAct3();
+      renderAct4();
+      renderAct5();
+      renderAct6();
+      renderSupportPeriodicTable('all');
+    }
+
+    /* =========================================================
+       4. RENDERITZAT DE LES ACTIVITATS
+       ========================================================= */
+    function renderAct1() {
+      const container = document.getElementById('act1Container');
+      container.innerHTML = '';
+      currentAct1.forEach((q, idx) => {
+        container.innerHTML += `
+          <div id="q1_${idx}" class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <span>${idx + 1}. ${q.text}</span>
+            <div class="flex gap-2 shrink-0">
+              <button onclick="setVFAnswer(${idx}, true)" class="vf-btn-t-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">V</button>
+              <button onclick="setVFAnswer(${idx}, false)" class="vf-btn-f-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600">F</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function setVFAnswer(idx, val) {
+      userVFAnswers[idx] = val;
+      const btnT = document.querySelector(`.vf-btn-t-${idx}`);
+      const btnF = document.querySelector(`.vf-btn-f-${idx}`);
+      if (val === true) {
+        btnT.className = `vf-btn-t-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-indigo-600 text-white border-indigo-600`;
+        btnF.className = `vf-btn-f-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600`;
+      } else {
+        btnF.className = `vf-btn-f-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-indigo-600 text-white border-indigo-600`;
+        btnT.className = `vf-btn-t-${idx} px-3 py-1 rounded-lg border font-bold text-xs bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600`;
+      }
+    }
+
+    function renderAct2() {
+      const container = document.getElementById('act2Container');
+      container.innerHTML = `
+        <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <span>🔹 Unió entre un <strong>Metall (🟦)</strong> i un <strong>No metall (🟩)</strong> amb traspàs d'electrons:</span>
+          <select id="act2_1" class="p-2 rounded-lg bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Tria --</option>
+            <option value="Ionic">Enllaç Iònic</option>
+            <option value="Covalent">Enllaç Covalent</option>
+            <option value="Metallic">Enllaç Metàl·lic</option>
+          </select>
+        </div>
+
+        <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <span>🔹 Unió entre dos <strong>No metalls (🟩)</strong> compartint parelles d'electrons:</span>
+          <select id="act2_2" class="p-2 rounded-lg bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Tria --</option>
+            <option value="Ionic">Enllaç Iònic</option>
+            <option value="Covalent">Enllaç Covalent</option>
+            <option value="Metallic">Enllaç Metàl·lic</option>
+          </select>
+        </div>
+
+        <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <span>🔹 Unió entre dos <strong>Metalls (🟦)</strong> formant un mar d'electrons lliures:</span>
+          <select id="act2_3" class="p-2 rounded-lg bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Tria --</option>
+            <option value="Ionic">Enllaç Iònic</option>
+            <option value="Covalent">Enllaç Covalent</option>
+            <option value="Metallic">Enllaç Metàl·lic</option>
+          </select>
+        </div>
+      `;
+    }
+
+    function renderAct3() {
+      const container = document.getElementById('act3Container');
+      container.innerHTML = `
+        <p>1. Els àtoms formen enllaços per aconseguir la màxima 
+          <select id="act3_1" class="p-1 px-2 rounded bg-slate-100 dark:bg-slate-700 border font-bold text-xs">
+            <option value="">---</option>
+            <option value="8">8</option>
+            <option value="compartir">compartir</option>
+            <option value="perden">perden</option>
+            <option value="estabilitat">estabilitat</option>
+            <option value="guanyen">guanyen</option>
+          </select>.
+        </p>
+
+        <p>2. La regla de l'octet indica que els àtoms volen tenir 
+          <select id="act3_2" class="p-1 px-2 rounded bg-slate-100 dark:bg-slate-700 border font-bold text-xs">
+            <option value="">---</option>
+            <option value="8">8</option>
+            <option value="compartir">compartir</option>
+            <option value="perden">perden</option>
+            <option value="estabilitat">estabilitat</option>
+            <option value="guanyen">guanyen</option>
+          </select> electrons a la capa de valència.
+        </p>
+
+        <p>3. En l'enllaç iònic, els metalls 
+          <select id="act3_3" class="p-1 px-2 rounded bg-slate-100 dark:bg-slate-700 border font-bold text-xs">
+            <option value="">---</option>
+            <option value="8">8</option>
+            <option value="compartir">compartir</option>
+            <option value="perden">perden</option>
+            <option value="estabilitat">estabilitat</option>
+            <option value="guanyen">guanyen</option>
+          </select> electrons i queden amb càrrega positiva.
+        </p>
+
+        <p>4. En l'enllaç iònic, els no metalls 
+          <select id="act3_4" class="p-1 px-2 rounded bg-slate-100 dark:bg-slate-700 border font-bold text-xs">
+            <option value="">---</option>
+            <option value="8">8</option>
+            <option value="compartir">compartir</option>
+            <option value="perden">perden</option>
+            <option value="estabilitat">estabilitat</option>
+            <option value="guanyen">guanyen</option>
+          </select> electrons i queden amb càrrega negativa.
+        </p>
+
+        <p>5. En l'enllaç covalent, els àtoms de no metall prefereixen 
+          <select id="act3_5" class="p-1 px-2 rounded bg-slate-100 dark:bg-slate-700 border font-bold text-xs">
+            <option value="">---</option>
+            <option value="8">8</option>
+            <option value="compartir">compartir</option>
+            <option value="perden">perden</option>
+            <option value="estabilitat">estabilitat</option>
+            <option value="guanyen">guanyen</option>
+          </select> electrons.
+        </p>
+      `;
+    }
+
+    function renderAct4() {
+      const container = document.getElementById('act4Container');
+      container.innerHTML = '';
+      currentAct4.forEach((q, idx) => {
+        container.innerHTML += `
+          <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-xl space-y-2">
+            <p class="font-bold">${idx + 1}. ${q.name} (<span id="katex-act4-${idx}"></span>):</p>
+            <div class="space-y-1 text-xs">
+              <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-600 cursor-pointer">
+                <input type="radio" name="act4_${idx}" value="Covalent"> Enllaç Covalent
+              </label>
+              <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-600 cursor-pointer">
+                <input type="radio" name="act4_${idx}" value="Ionic"> Enllaç Iònic
+              </label>
+              <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-600 cursor-pointer">
+                <input type="radio" name="act4_${idx}" value="Metallic"> Enllaç Metàl·lic
+              </label>
+            </div>
+          </div>
+        `;
+      });
+
+      // Formatació amb KaTeX
+      setTimeout(() => {
+        currentAct4.forEach((q, idx) => {
+          mInline(q.latex, `katex-act4-${idx}`);
+        });
+      }, 50);
+    }
+
+    function renderAct5() {
+      const container = document.getElementById('act5Container');
+      container.innerHTML = `
+        <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span>1. 🤝 "Dos àtoms agafats de la mà compartint un parell d'electrons":</span>
+          <select id="act5_1" class="p-1.5 rounded bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Selecciona --</option>
+            <option value="Covalent">Covalent</option>
+            <option value="Ionic">Iònic</option>
+            <option value="Metallic">Metàl·lic</option>
+          </select>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span>2. 🎁 "Un àtom donant un electró a un altre àtom que agafa càrrega negativa":</span>
+          <select id="act5_2" class="p-1.5 rounded bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Selecciona --</option>
+            <option value="Covalent">Covalent</option>
+            <option value="Ionic">Iònic</option>
+            <option value="Metallic">Metàl·lic</option>
+          </select>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span>3. 🌊 "Molts ions positius junts envoltats d'un mar d'electrons lliures":</span>
+          <select id="act5_3" class="p-1.5 rounded bg-white dark:bg-slate-800 border font-bold text-xs">
+            <option value="">-- Selecciona --</option>
+            <option value="Covalent">Covalent</option>
+            <option value="Ionic">Iònic</option>
+            <option value="Metallic">Metàl·lic</option>
+          </select>
+        </div>
+      `;
+    }
+
+    function renderAct6() {
+      const container = document.getElementById('act6Container');
+      const filterBox = document.getElementById('act6FilterButtons');
+      container.innerHTML = '';
+      filterBox.innerHTML = `<button onclick="highlightAct6('all')" id="btnAct6-all" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white shadow">Tots</button>`;
+
+      currentAct6.forEach((q, idx) => {
+        const qNum = idx + 1;
+        container.innerHTML += `
+          <div onclick="highlightAct6(${qNum})" class="p-3 bg-slate-50 dark:bg-slate-700/40 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-xl flex items-center justify-between cursor-pointer transition-all border border-slate-200 dark:border-slate-600">
+            <span>${qNum}. <strong>${q.name1}</strong> + <strong>${q.name2}</strong>:</span>
+            <select id="act6_${idx}" onclick="event.stopPropagation(); highlightAct6(${qNum});" onfocus="highlightAct6(${qNum})" class="p-1.5 rounded bg-white dark:bg-slate-800 border font-bold text-xs">
+              <option value="">-- Tria --</option>
+              <option value="Ionic">Iònic</option>
+              <option value="Covalent">Covalent</option>
+              <option value="Metallic">Metàl·lic</option>
+              <option value="Noble">Sense enllaç</option>
+            </select>
+          </div>
+        `;
+
+        filterBox.innerHTML += `
+          <button onclick="highlightAct6(${qNum})" id="btnAct6-${qNum}" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${qNum}. ${q.sym1}+${q.sym2}</button>
+        `;
+      });
+    }
+
+    /* =========================================================
+       5. TAULA PERIÒDICA DE SUPORT AMB RESSALTAT DINÀMIC
+       ========================================================= */
+    function renderSupportPeriodicTable(filter = 'all') {
+      const container = document.getElementById('supportPeriodicTableGrid');
+      const guideText = document.getElementById('act6GuideText');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      // Actualitzar botons de filtre
+      const allBtns = ['all', 1, 2, 3, 4, 5];
+      allBtns.forEach(id => {
+        const btn = document.getElementById(`btnAct6-${id}`);
+        if (btn) {
+          if (id == filter) {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-indigo-600 text-white shadow font-bold';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-600';
+          }
+        }
+      });
+
+      let highlightedSyms = [];
+      if (filter === 'all') {
+        currentAct6.forEach(q => {
+          if (!highlightedSyms.includes(q.sym1)) highlightedSyms.push(q.sym1);
+          if (!highlightedSyms.includes(q.sym2)) highlightedSyms.push(q.sym2);
+        });
+        if (guideText) guideText.textContent = "📍 Mostrant tots els elements de les preguntes d'aquesta prova. Clica un parell per ressaltar-los.";
+      } else if (typeof filter === 'number' && currentAct6[filter - 1]) {
+        const q = currentAct6[filter - 1];
+        highlightedSyms = [q.sym1, q.sym2];
+        if (guideText) guideText.textContent = `💡 Pregunta ${filter}: ${q.name1} (${q.type1}) + ${q.name2} (${q.type2}) → Tipus d'enllaç?`;
+      }
+
+      // Encapçalaments
+      container.innerHTML += `<div class="text-[9px] font-extrabold text-slate-400 self-center">P / G</div>`;
+      for (let g = 1; g <= 18; g++) {
+        container.innerHTML += `<div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 py-0.5">G${g}</div>`;
+      }
+
+      for (let p = 1; p <= 6; p++) {
+        container.innerHTML += `<div class="font-extrabold text-[10px] text-slate-400 self-center">P${p}</div>`;
+
+        for (let g = 1; g <= 18; g++) {
+          const key = `${p}-${g}`;
+          const el = elementMap[key];
+
+          if (el) {
+            const isHighlighted = highlightedSyms.includes(el.sym);
+
+            let bgStyle = 'bg-slate-200 dark:bg-slate-700 text-slate-400 opacity-30';
+            let pulseEffect = '';
+            let labelType = el.type === 'Metall' ? '🟦 Metall' : (el.type === 'No metall' ? '🟩 No metall' : '🟪 Gas noble');
+
+            if (isHighlighted) {
+              pulseEffect = 'ring-2 ring-amber-400 ring-offset-1 dark:ring-offset-slate-900 animate-pulse z-10 scale-105';
+              if (el.type === 'Metall') bgStyle = 'bg-blue-600 text-white shadow-md font-black';
+              else if (el.type === 'No metall') bgStyle = 'bg-emerald-600 text-white shadow-md font-black';
+              else bgStyle = 'bg-purple-600 text-white shadow-md font-black';
+            }
+
+            container.innerHTML += `
+              <div class="${bgStyle} ${pulseEffect} p-1 rounded-lg h-12 flex flex-col justify-between text-left transition-all relative" title="${el.name} (${labelType})">
+                <span class="text-[8px] font-bold opacity-90">${el.z}</span>
+                <span class="text-sm font-black leading-none self-center">${el.sym}</span>
+                <span class="text-[7px] truncate self-center font-bold">${isHighlighted ? labelType.split(' ')[1] : ''}</span>
+              </div>
+            `;
+          } else {
+            container.innerHTML += `<div></div>`;
+          }
+        }
+      }
+    }
+
+    function highlightAct6(qNum) {
+      renderSupportPeriodicTable(qNum);
+    }
+
+    /* =========================================================
+       6. CORRECCIÓ DE LA PROVA I ENVIAMENT A GOOGLE APPS SCRIPT
+       ========================================================= */
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzygUGoYMDsYEpqNaMDnZoYkoR5m10a3GTmJWH09GAv7xVZTc7cE37MMDiWJSf-ZvGM/exec";
+
+    function submitExam() {
+      if (!studentData.name || !studentData.aula) {
+        document.getElementById('registrationModal').classList.remove('hidden');
+        return;
+      }
+
+      let score = 0;
+
+      // Act 1 (2 pts: 4 Qs x 0.5)
+      currentAct1.forEach((q, idx) => {
+        if (userVFAnswers[idx] === q.ans) score += 0.5;
+      });
+
+      // Act 2 (2 pts: 3 Qs x 0.666)
+      const a2_1 = document.getElementById('act2_1').value;
+      const a2_2 = document.getElementById('act2_2').value;
+      const a2_3 = document.getElementById('act2_3').value;
+      if (a2_1 === 'Ionic') score += (2 / 3);
+      if (a2_2 === 'Covalent') score += (2 / 3);
+      if (a2_3 === 'Metallic') score += (2 / 3);
+
+      // Act 3 (2.5 pts: 5 Qs x 0.5)
+      const correctAct3 = { 1: 'estabilitat', 2: '8', 3: 'perden', 4: 'guanyen', 5: 'compartir' };
+      for (let i = 1; i <= 5; i++) {
+        const val = document.getElementById(`act3_${i}`).value;
+        if (val === correctAct3[i]) score += 0.5;
+      }
+
+      // Act 4 (2 pts: 4 Qs x 0.5)
+      currentAct4.forEach((q, idx) => {
+        const radios = document.getElementsByName(`act4_${idx}`);
+        let sel = '';
+        radios.forEach(r => { if (r.checked) sel = r.value; });
+        if (sel === q.ans) score += 0.5;
+      });
+
+      // Act 5 (1 pt: 3 Qs x 0.333)
+      const correctAct5 = { 1: 'Covalent', 2: 'Ionic', 3: 'Metallic' };
+      for (let i = 1; i <= 3; i++) {
+        const val = document.getElementById(`act5_${i}`).value;
+        if (val === correctAct5[i]) score += (1 / 3);
+      }
+
+      // Act 6 (1.5 pts: 5 Qs x 0.3)
+      currentAct6.forEach((q, idx) => {
+        const val = document.getElementById(`act6_${idx}`).value;
+        if (val === q.ans) score += 0.3;
+      });
+
+      // Escalador a base 10.0 punts
+      const finalMark = Math.min(10, ((score / 11) * 10)).toFixed(1);
+
+      // Mostrar modal de resultats
+      document.getElementById('modalScoreDisplay').textContent = `${finalMark} / 10`;
+      document.getElementById('modalStudentName').textContent = studentData.name;
+      document.getElementById('modalStudentClass').textContent = studentData.aula;
+      document.getElementById('resultsModal').classList.remove('hidden');
+
+      // Dades a enviar al Google Sheet
+      const payload = {
+        nom: studentData.name,
+        aula: studentData.aula,
+        nota: finalMark,
+        data: new Date().toLocaleString('ca-ES'),
+        assignatura: "Física i Química (3r ESO)",
+        unitat: "Unitat 3: L'Enllaç Químic - Prova d'Avaluació",
+        detalls: `Nota: ${finalMark}/10 (Puntuació directa: ${score.toFixed(1)}/11)`
+      };
+
+      // Enviament POST
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        document.getElementById('modalSendStatus').textContent = "✅ Enviat correctament al full de càlcul!";
+        document.getElementById('modalSendStatus').className = "font-bold text-emerald-600 dark:text-emerald-400";
+      })
+      .catch((err) => {
+        document.getElementById('modalSendStatus').textContent = "⚠️ Error d'enviament (comprova la connexió). Nota registrada localment.";
+        document.getElementById('modalSendStatus').className = "font-bold text-amber-600 dark:text-amber-400";
+      });
+    }
+
+    /* =========================================================
+       7. MODE FOSC / LLUMINÓS
+       ========================================================= */
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('themeIconSun');
+    const moonIcon = document.getElementById('themeIconMoon');
+
+    function updateThemeUI(isDark) {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+    }
+
+    const storedTheme = localStorage.getItem('theme');
+    let isDarkMode = storedTheme ? storedTheme === 'dark' : true;
+    updateThemeUI(isDarkMode);
+
+    themeToggleBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      updateThemeUI(isDarkMode);
+    });
+
+    window.onload = function() {
+      initRandomExam();
+    };
+  </script>
+</body>
+</html>
